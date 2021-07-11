@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Todo Application</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container" style="padding: 8px;margin-top: 10%;">
+	
+	<div class="alert alert-success alert-dismissible" style="display: none">
+	    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+	    <strong>Success!</strong> New task created. 
+  	</div>
+
+	<input type="text" class="form-control input-lg" id="taskInfo">
+	<div style="width: 100%; margin: auto; text-align: center;margin-top: 16px;margin-bottom: 16px;">
+		<button type="button" class="btn btn-primary btn-lg" onclick="createTask()">Add new task</button>
+
+		<button type="button" class="btn btn-primary btn-lg" onclick="getTask()">Get Last task</button>
+		<button type="button" class="btn btn-primary btn-lg" onclick="deleteall()">Delete all tasks</button>
+	</div>
+	<h2>Tasks to DO</h2>
+	<table class="table" id="todoTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Task</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="todoTableBody">
+	  <tr class="info">
+        <td>Default</td>
+        <td>Defaultson</td>
+        <td>def@somemail.com</td>
+      </tr>
+    </tbody>
+	</table>
+
+
+	<h2>Done tasks</h2>
+<table class="table" id="doneTable">
+	    <thead>
+	      <tr>
+	        <th>ID</th>
+	        <th>Task</th>
+	        <th>Action</th>
+	      </tr>
+	    </thead>
+	    <tbody id="doneTableBody">
+		  <tr class="info">
+	        <td>Default</td>
+	        <td>Defaultson</td>
+	        <td>def@somemail.com</td>
+	      </tr>
+	    </tbody>
+	</table>
+
+</div>
+
+
+
+<script type="text/javascript">
+	var todoBody = document.getElementById('todoTableBody');
+	var doneBody = document.getElementById('doneTableBody');
+	var allTasks = localStorage.getItem("task");
+	var doneTasks = localStorage.getItem("doneTasks");
+	// tableBody.innerHTML
+	renderTable(allTasks, todoBody, '#todoTable', 0)
+	renderTable(doneTasks, doneBody, '#doneTable', 1)
+	
+	function renderTable(allTasks, tableBody, tableId, tableType){
+		var allTaskContent = ''
+		if (allTasks){
+			allTasks = allTasks.split(",");
+			allTasks.forEach(function (item, index){
+				allTaskContent += "<tr class='info'><td>" + (index+1) + "</td><td>" + item + "</td><td><button type='button' class='btn btn-link'>Edit</button><button type='button' class='btn btn-link' onclick='deleteTask("+(index+1)+","+ tableType+")'>Delete</button>";
+				if (tableType == 0){
+					allTaskContent += "<button type='button' class='btn btn-link' onclick='completeTask("+(index+1) + ")'>Complete</button>"
+				}
+				allTaskContent += "</tr>";
+
+			});
+			tableBody.innerHTML = allTaskContent;
+		}
+		else{
+			$(tableId).hide();
+		}
+
+	}
+
+	function createTask(){
+if (document.getElementById('taskInfo').value == "") {
+alert('You have not specified the task')  
+}
+else{
+		var task = document.getElementById('taskInfo').value;
+		if (localStorage.task){
+			var allTasks = localStorage.getItem("task") + ',' + task;
+		}
+		else{
+			var allTasks = task;
+		}
+		localStorage.setItem("task", allTasks);
+		document.getElementById('taskInfo').value = '';
+		$('.alert').show();
+		location.reload();
+}
+	}
+	function getTask(){
+		alert(localStorage.getItem("task"));
+	}
+ 
+        	function deleteall(){
+             window.localStorage.clear();
+             location.reload();
+              }
+	function deleteTask(index, tableType){
+		if (tableType == 0){
+			tableType = 'task'
+		}
+		else{
+			tableType = 'doneTasks'
+		}
+		var allTasks = localStorage.getItem(tableType);
+		if (allTasks){
+			allTasks = allTasks.split(",");
+			allTasks.splice(index-1, 1);
+			localStorage.setItem(tableType, allTasks);
+			location.reload();
+		}
+	}
+
+	function completeTask(index){
+		var allTasks = localStorage.getItem("task");
+		if (allTasks){
+			allTasks = allTasks.split(",");
+			if (allTasks.length >= index){
+				var tempTask = allTasks[index-1]
+				deleteTask(index, 0)
+				if (localStorage.doneTasks){
+					var doneTasks = localStorage.getItem("doneTasks") + ',' + tempTask;
+				}
+				else{
+					var doneTasks = tempTask;
+				}
+				localStorage.setItem("doneTasks", doneTasks);
+			}
+		}
+	}
+</script>
+</body>
+</html>
