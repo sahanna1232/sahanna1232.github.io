@@ -76,7 +76,7 @@
 		if (allTasks){
 			allTasks = allTasks.split(",");
 			allTasks.forEach(function (item, index){
-				allTaskContent += "<tr class='info'><td>" + (index+1) + "</td><td>" + item + "</td><td><button type='button' class='btn btn-link'>Edit</button><button type='button' class='btn btn-link' onclick='deleteTask("+(index+1)+","+ tableType+")'>Delete</button>";
+				allTaskContent += "<tr class='info'><td>" + (index+1) + "</td><td id='content_" +tableType+"_"+index+"'><p>"+ item +"</p> <input type='text' value='"+item+"'><button class='edit'>Save</button> </td><td><button type='button' class='btn btn-link' onclick='editTask("+(index+1)+","+ tableType+")'>Edit</button><button type='button' class='btn btn-link' onclick='deleteTask("+(index+1)+","+ tableType+")'>Delete</button>";
 				if (tableType == 0){
 					allTaskContent += "<button type='button' class='btn btn-link' onclick='completeTask("+(index+1) + ")'>Complete</button>"
 				}
@@ -150,6 +150,12 @@ else{
 			}
 		}
 	}
+        function editTask(index, taskType){
+            console.log(index, taskType) 
+            $('#content_'+taskType+'_'+index).children().toggle()
+        }   
 </script>
 </body>
 </html>
+
+
