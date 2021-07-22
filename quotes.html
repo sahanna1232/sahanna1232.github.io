@@ -1,0 +1,68 @@
+<html><head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<title>quotes</title>
+<style>
+.centerdiv{
+font-size:24px ;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+border-radius:8px;
+padding: 8px
+}
+body {
+  background-image: url("https://s1.1zoom.me/big3/638/Milky_Way_Sky_Night_447884.jpg");
+    background-size:1600px 789px;
+}
+.button{
+  background-color: red;
+  color: blue;
+}
+</style> 
+</head>
+<body>
+<div class="centerdiv" style="padding:8px;   color: #56f700!important;    background: rgb(255 3 203 / 50%);
+">
+
+    <div class="btn">
+      <button class="button" onclick="refreshQuote()" style="padding:8px;cursor:pointer;font-size: 24px;border-radius: 8px;">Get me New quote</button>
+    </div>
+    <p id="quote">GET ME A FRESH QUOTE</p>
+    <p id="author"></p> 
+
+
+
+</div>
+
+
+
+
+<script type="text/javascript">
+        var quoteData = [];     
+	function refreshQuote(){
+         if (quoteData.length == 0){
+	 	var url = 'https://type.fit/api/quotes';
+	 	$.get({
+                  url: url,
+                  success: function(data){
+	 	  	quoteData = JSON.parse(data);
+                   },
+                  async:false
+                }); 
+         }    
+                updateQuote()
+        }
+        
+        function updateQuote(){
+           var quoteNumber = Math.floor(Math.random() *quoteData.length);
+           console.log(quoteNumber)
+           console.log(quoteData)                     
+	   document.getElementById('quote').innerHTML = quoteData[quoteNumber].text;
+	   document.getElementById('author').innerHTML = 'Author-'+ quoteData[quoteNumber].author;                        
+		        
+        }
+</script>
+
+
+</body></html>
