@@ -1,0 +1,173 @@
+<html><head>
+<title>Tic Tak Toe</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script><style type="text/css">
+
+.parent{
+width: 600px;
+height: 600px;
+top: 50%;
+left: 50%;
+position:fixed;
+transform: translate(-50%, -50%);
+}
+.child{
+width: 200px;
+height: 200px;
+border: 1px solid gray;
+display: table-cell;
+font-size: 6rem;
+   text-align: center;
+    vertical-align: middle;
+}
+/* .child:nth-child(1) {
+  border: 1px solid gray;
+}
+.child:nth-child(2) {
+  border: 1px solid gray;
+}
+.child:nth-child(3) {
+  border: 1px solid gray;
+}*/
+</style></head>
+  
+
+
+<body>
+
+<div class="parent">
+<div class="mid">
+<div class="child" id="1" style="color: red;"></div>
+<div class="child" id="2" style="color: red;"></div>
+<div class="child" id="3" style="color: blue;"></div>
+</div>
+<div class="mid">
+<div class="child" id="4" style="color: blue;"></div>
+<div class="child" id="5" style="color: blue;"></div>
+<div class="child" id="6" style="color: red;"></div>
+</div>
+<div class="mid">
+<div class="child" id="7" style="color: red;"></div>
+<div class="child" id="8" style="color: blue;"></div>
+<div class="child" id="9" style="color: red;"></div>
+
+</div>
+       
+       
+         
+        
+       
+
+
+       
+       
+       </div>
+    
+    
+  
+
+
+<div style="position:fixed;height:500px;border:8px solid red;width:400px;margin-top: 100px;">
+    <div style="border:8px solid red;height:490px" class="col-sm-6">
+    <h1>Player 1<h1>
+    <p id="demo"></p>
+    </div>
+    <div class="col-sm-6">
+    <h1>Player 2<h1>
+    <p id="demo1"></p>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+
+
+
+
+var wonCases = [ ['1', '2', '3'], ['1', '5', '9'], ['1', '4', '7'], ['4','5','6'], ['7', '8', '9'], ['2', '5', '8'], ['3', '6', '9'], ['3', '5', '7'] ]
+currentVal = 'X'
+$(document).ready(function() {
+        $('.child').click(function() {
+        if ($(this).first().text() == ''){
+           var id = '1'; //$(this).first().attr('id')
+           $(this).first().text(currentVal);
+        if (currentVal == 'X'){
+                                $(this).css ('color','red')
+        currentVal = 'O'
+                                checkWinner(id)
+        }
+
+        else{
+                                $(this).css ('color','blue')
+        currentVal = 'X'
+                                checkWinner(id)
+        }
+           
+        }
+        });
+    });
+
+    function checkWinner(id){
+    wonCases.forEach(function(row){
+    if (id in row){
+// check if
+var a = '#'+row[0]
+var b = '#'+row[1]
+var c = '#'+row[2]
+if (($(a).text() != '') && ($(a).text() == $(b).text()) && ($(b).text() == $(c).text())){
+gameComplete()
+return true;
+
+    } 
+
+
+
+    }
+    });
+    }
+          function gameComplete(){
+           
+
+
+
+            if (currentVal == 'O'){
+
+
+             alert('X won')
+             
+             window.localStorage.setItem("X",0)
+             var X = window.localStorage.getItem("X")             
+             window.localStorage.setItem("player 1",X+1 );
+             document.getElementById("demo").innerHTML = window.localStorage.getItem("player 1");
+
+            }
+            else{
+             alert('O won')
+            
+             window.localStorage.setItem("O", 0);
+             var O = window.localStorage.getItem('O');
+             window.localStorage.setItem("player 2",O+1 );
+             document.getElementById("demo1").innerHTML = window.localStorage.getItem("player 2");
+            }
+           }
+
+       
+     
+     
+     
+     
+     
+     
+       
+       
+
+</script>
+
+
+
+
+</body></html>
