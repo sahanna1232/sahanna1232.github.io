@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salt Analysis Lab Simulation</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .step-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .safety-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .safety-item {
+            background: #fff;
+            border: 3px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .safety-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .safety-item.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .safety-item .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .safety-item .name {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #28a745;
+            font-size: 1.5em;
+            display: none;
+        }
+
+        .safety-item.selected .checkmark {
+            display: block;
+        }
+
+        .sample-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .sample-card {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .sample-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .sample-card.selected {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+
+        .sample-formula {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .sample-name {
+            color: #666;
+            font-size: 1em;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .test-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .test-number {
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        .test-procedure {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .test-result {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .test-negative {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .tab:not(.active):hover {
+            background: #e9ecef;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .result-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .result-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .final-result {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .final-result h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.8em;
+        }
+
+        .final-result p {
+            margin: 5px 0;
+            font-size: 1.2em;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .flame-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .flame-color {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .flame-copper { background: #00ff88; color: #000; }
+        .flame-barium { background: #90ee90; color: #000; }
+        .flame-none { background: #666; }
+
+        .anion-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .anion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .anion-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .anion-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .anion-formula {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .anion-name {
+            font-size: 1em;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .test-procedures-display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .procedures-section {
+            margin-bottom: 25px;
+        }
+
+        .procedure-list {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .procedure-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .procedure-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-badge {
+            background: #007bff;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-badge.confirm {
+            background: #28a745;
+        }
+
+        .procedure-text {
+            color: #2c3e50;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .reagent-selection {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .reagent-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .reagent-tab {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .reagent-tab:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .reagent-tab.correct {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .reagent-tab.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .reagent-tab.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .reagent-instruction {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .reagent-feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .reagent-feedback.correct {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .reagent-feedback.incorrect {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #dee2e6;
+            margin-right: 8px;
+        }
+
+        .step-dot.active {
+            background: #007bff;
+        }
+
+        .step-dot.completed {
+            background: #28a745;
+        }
+
+        .procedure-steps {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #dee2e6;
+        }
+
+        .procedure-step {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .procedure-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            background: #007bff;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-number.completed {
+            background: #28a745;
+        }
+
+        .step-text {
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test</h1>
+            <p>Interactive Qualitative Analysis of Salt</p>
+        </div>
+
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <!-- Step 1: Safety Preparation -->
+            <div class="step-container active" id="step1">
+                <div class="step-header">
+                    <div class="step-title">Step 1: Safety Preparation</div>
+                    <div class="step-description">Select and confirm all required safety equipment before starting the experiment</div>
+                </div>
+
+                <div class="warning">
+                    ⚠️ Safety is paramount in any chemistry lab. Always wear appropriate protective equipment!
+                </div>
+
+                <div class="safety-grid">
+                    <div class="safety-item" data-safety="coat">
+                        <div class="checkmark">✓</div>
+                        <div class="icon">🥼</div>
+                        <div class="name">Lab Coat</div>
+                    </div>
+                    <div class="safety-item" data-safety="goggles">
+                        <div class="checkmark">✓</div>
+                        <div class="icon">🥽</div>
+                        <div class="name">Safety Goggles</div>
+                    </div>
+                    <div class="safety-item" data-safety="gloves">
+                        <div class="checkmark">✓</div>
+                        <div class="icon">🧤</div>
+                        <div class="name">Lab Gloves</div>
+                    </div>
+                </div>
+
+                <button class="btn" id="confirmSafety" disabled>Confirm Safety Equipment ✓</button>
+            </div>
+
+            <!-- Step 2: Sample Selection -->
+            <div class="step-container" id="step2">
+                <div class="step-header">
+                    <div class="step-title">Step 2: Sample Selection</div>
+                    <div class="step-description">Choose one salt sample for qualitative analysis</div>
+                </div>
+
+                <div class="sample-grid">
+                    <div class="sample-card" data-sample="(NH₄)₂SO₄">
+                        <div class="sample-formula">(NH₄)₂SO₄</div>
+                        <div class="sample-name">Ammonium Sulphate</div>
+                    </div>
+                    <div class="sample-card" data-sample="CuCl₂">
+                        <div class="sample-formula">CuCl₂</div>
+                        <div class="sample-name">Copper Chloride</div>
+                    </div>
+                    <div class="sample-card" data-sample="Al(NO₃)₃">
+                        <div class="sample-formula">Al(NO₃)₃</div>
+                        <div class="sample-name">Aluminium Nitrate</div>
+                    </div>
+                    <div class="sample-card" data-sample="ZnCO₃">
+                        <div class="sample-formula">ZnCO₃</div>
+                        <div class="sample-name">Zinc Carbonate</div>
+                    </div>
+                    <div class="sample-card" data-sample="MnSO₄">
+                        <div class="sample-formula">MnSO₄</div>
+                        <div class="sample-name">Manganese Sulphate</div>
+                    </div>
+                    <div class="sample-card" data-sample="BaCl₂">
+                        <div class="sample-formula">BaCl₂</div>
+                        <div class="sample-name">Barium Chloride</div>
+                    </div>
+                </div>
+
+                <button class="btn" id="confirmSample" disabled>Confirm Sample Selection</button>
+            </div>
+
+            <!-- Step 3: Preliminary Examination -->
+            <div class="step-container" id="step3">
+                <div class="step-header">
+                    <div class="step-title">Step 3: Preliminary Examination</div>
+                    <div class="step-description">Observe physical properties and perform flame test</div>
+                </div>
+
+                <div class="test-section">
+                    <div class="test-title">
+                        <div class="test-number">A</div>
+                        Color Test
+                    </div>
+                    <div class="test-procedure">
+                        <strong>Procedure:</strong> Observe the color of the salt sample
+                    </div>
+                    <div class="test-result" id="colorResult">
+                        Click "Perform Test" to observe the color
+                    </div>
+                    <button class="btn" id="colorTest">Perform Color Test</button>
+                </div>
+
+                <div class="test-section">
+                    <div class="test-title">
+                        <div class="test-number">B</div>
+                        Flame Test
+                    </div>
+                    
+                    <div class="reagent-instruction">
+                        <strong>📋 Instructions:</strong> Select the correct reagents in order to perform the flame test
+                    </div>
+
+                    <div class="procedure-steps">
+                        <div class="procedure-step">
+                            <div class="step-number" id="flame-step1">1</div>
+                            <div class="step-text">Select acid to make paste with salt</div>
+                        </div>
+                        <div class="procedure-step">
+                            <div class="step-number" id="flame-step2">2</div>
+                            <div class="step-text">Select tool to dip in paste</div>
+                        </div>
+                        <div class="procedure-step">
+                            <div class="step-number" id="flame-step3">3</div>
+                            <div class="step-text">Select flame type</div>
+                        </div>
+                    </div>
+
+                    <div class="reagent-selection" id="flameReagentSelection">
+                        <h4>Step 1: Select the acid for making paste</h4>
+                        <div class="reagent-tabs">
+                            <div class="reagent-tab" data-reagent="HCl" data-step="1">Conc. HCl</div>
+                            <div class="reagent-tab" data-reagent="H2SO4" data-step="1">Conc. H₂SO₄</div>
+                            <div class="reagent-tab" data-reagent="HNO3" data-step="1">Conc. HNO₃</div>
+                            <div class="reagent-tab" data-reagent="CH3COOH" data-step="1">CH₃COOH</div>
+                        </div>
+                        <div id="flameReagentFeedback"></div>
+                    </div>
+
+                    <div class="flame-colors" id="flameColors" style="display: none;">
+                        <div class="flame-color flame-copper">Green Flame</div>
+                        <div class="flame-color flame-barium">Apple Green</div>
+                        <div class="flame-color flame-none">No Color</div>
+                    </div>
+                    <div class="test-result" id="flameResult">
+                        Complete reagent selection to observe flame color
+                    </div>
+                </div>
+
+                <button class="btn btn-success" id="proceedToAnion" disabled>Proceed to Anion Analysis →</button>
+            </div>
+
+            <!-- Step 4: Analysis Tabs -->
+            <div class="step-container" id="step4">
+                <div class="tabs">
+                    <div class="tab active" id="anionTab">Anion Analysis</div>
+                    <div class="tab" id="cationTab">Cation Analysis</div>
+                </div>
+
+                <!-- Anion Analysis -->
+                <div id="anionAnalysis">
+                    <div class="step-header">
+                        <div class="step-title">Anion Analysis (Identification & Confirmation)</div>
+                        <div class="step-description">Systematic identification and confirmation of anions</div>
+                    </div>
+
+                    <div class="anion-display">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">🧪 Anions to be Tested:</h3>
+                        <div class="anion-grid">
+                            <div class="anion-card">
+                                <div class="anion-formula">CO₃²⁻</div>
+                                <div class="anion-name">Carbonate Ion</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">Cl⁻</div>
+                                <div class="anion-name">Chloride Ion</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">NO₃⁻</div>
+                                <div class="anion-name">Nitrate Ion</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">SO₄²⁻</div>
+                                <div class="anion-name">Sulphate Ion</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Identification Tests -->
+                    <div class="test-section">
+                        <div class="test-title">
+                            <div class="test-number">1</div>
+                            Test for CO₃²⁻ ion
+                        </div>
+                        
+                        <div class="reagent-instruction">
+                            <strong>📋 Instructions:</strong> Select the correct reagent to test for carbonate ion
+                        </div>
+
+                        <div class="reagent-selection" id="co3ReagentSelection">
+                            <h4>Select reagent for CO₃²⁻ test:</h4>
+                            <div class="reagent-tabs">
+                                <div class="reagent-tab" data-reagent="dilHCl" data-test="co3">Dil. HCl</div>
+                                <div class="reagent-tab" data-reagent="concHCl" data-test="co3">Conc. HCl</div>
+                                <div class="reagent-tab" data-reagent="dilH2SO4" data-test="co3">Dil. H₂SO₄</div>
+                                <div class="reagent-tab" data-reagent="NaOH" data-test="co3">NaOH</div>
+                            </div>
+                            <div id="co3ReagentFeedback"></div>
+                        </div>
+                        
+                        <div class="test-result" id="co3Result">
+                            Select correct reagent to see result
+                        </div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">
+                            <div class="test-number">2</div>
+                            Test for Cl⁻ ion
+                        </div>
+                        
+                        <div class="reagent-instruction">
+                            <strong>📋 Instructions:</strong> Select the correct reagent to test for chloride ion
+                        </div>
+
+                        <div class="reagent-selection" id="clReagentSelection" style="display: none;">
+                            <h4>Select reagent for Cl⁻ test:</h4>
+                            <div class="reagent-tabs">
+                                <div class="reagent-tab" data-reagent="concH2SO4" data-test="cl">Conc. H₂SO₄</div>
+                                <div class="reagent-tab" data-reagent="dilHCl" data-test="cl">Dil. HCl</div>
+                                <div class="reagent-tab" data-reagent="AgNO3" data-test="cl">AgNO₃</div>
+                                <div class="reagent-tab" data-reagent="BaCl2" data-test="cl">BaCl₂</div>
+                            </div>
+                            <div id="clReagentFeedback"></div>
+                        </div>
+                        
+                        <div class="test-result" id="clResult">
+                            Complete previous test to unlock
+                        </div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">
+                            <div class="test-number">3</div>
+                            Test for NO₃⁻ ion
+                        </div>
+                        
+                        <div class="reagent-instruction">
+                            <strong>📋 Instructions:</strong> Select the correct reagents for nitrate ion test
+                        </div>
+
+                        <div class="procedure-steps" style="display: none;" id="no3Steps">
+                            <div class="procedure-step">
+                                <div class="step-number" id="no3-step1">1</div>
+                                <div class="step-text">Select acid</div>
+                            </div>
+                            <div class="procedure-step">
+                                <div class="step-number" id="no3-step2">2</div>
+                                <div class="step-text">Select metal</div>
+                            </div>
+                            <div class="procedure-step">
+                                <div class="step-number" id="no3-step3">3</div>
+                                <div class="step-text">Apply heat</div>
+                            </div>
+                        </div>
+
+                        <div class="reagent-selection" id="no3ReagentSelection" style="display: none;">
+                            <h4>Step 1: Select acid for NO₃⁻ test:</h4>
+                            <div class="reagent-tabs">
+                                <div class="reagent-tab" data-reagent="concH2SO4" data-test="no3" data-step="1">Conc. H₂SO₄</div>
+                                <div class="reagent-tab" data-reagent="dilHCl" data-test="no3" data-step="1">Dil. HCl</div>
+                                <div class="reagent-tab" data-reagent="concHNO3" data-test="no3" data-step="1">Conc. HNO₃</div>
+                                <div class="reagent-tab" data-reagent="CH3COOH" data-test="no3" data-step="1">CH₃COOH</div>
+                            </div>
+                            <div id="no3ReagentFeedback"></div>
+                        </div>
+                        
+                        <div class="test-result" id="no3Result">
+                            Complete previous test to unlock
+                        </div>
+                    </div>
+
+                    <div class="test-section">
+                        <div class="test-title">
+                            <div class="test-number">4</div>
+                            Test for SO₄²⁻ ion
+                        </div>
+                        
+                        <div class="reagent-instruction">
+                            <strong>📋 Instructions:</strong> Select the correct reagents for sulphate ion test
+                        </div>
+
+                        <div class="procedure-steps" style="display: none;" id="so4Steps">
+                            <div class="procedure-step">
+                                <div class="step-number" id="so4-step1">1</div>
+                                <div class="step-text">Prepare aqueous solution</div>
+                            </div>
+                            <div class="procedure-step">
+                                <div class="step-number" id="so4-step2">2</div>
+                                <div class="step-text">Add acid</div>
+                            </div>
+                            <div class="procedure-step">
+                                <div class="step-number" id="so4-step3">3</div>
+                                <div class="step-text">Add reagent for precipitation</div>
+                            </div>
+                        </div>
+
+                        <div class="reagent-selection" id="so4ReagentSelection" style="display: none;">
+                            <h4>Step 1: Select acid for SO₄²⁻ test:</h4>
+                            <div class="reagent-tabs">
+                                <div class="reagent-tab" data-reagent="dilHCl" data-test="so4" data-step="1">Dil. HCl</div>
+                                <div class="reagent-tab" data-reagent="concH2SO4" data-test="so4" data-step="1">Conc. H₂SO₄</div>
+                                <div class="reagent-tab" data-reagent="dilHNO3" data-test="so4" data-step="1">Dil. HNO₃</div>
+                                <div class="reagent-tab" data-reagent="NaOH" data-test="so4" data-step="1">NaOH</div>
+                            </div>
+                            <div id="so4ReagentFeedback"></div>
+                        </div>
+                        
+                        <div class="test-result" id="so4Result">
+                            Complete previous test to unlock
+                        </div>
+                    </div>
+
+                    <!-- Confirmation Tests Section -->
+                    <div id="anionConfirmation" style="display: none;">
+                        <div class="step-header" style="margin-top: 30px;">
+                            <div class="step-title">Confirmation Tests</div>
+                            <div class="step-description">Confirm the presence of identified anion</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cation Analysis -->
+                <div id="cationAnalysis" style="display: none;">
+                    <div class="step-header">
+                        <div class="step-title">Cation Analysis (Group Separation & Confirmation)</div>
+                        <div class="step-description">Systematic identification and confirmation of cations</div>
+                    </div>
+
+                    <div class="cation-display">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">🧪 Cation Groups to be Tested:</h3>
+                        <div class="anion-grid">
+                            <div class="anion-card">
+                                <div class="anion-formula">NH₄⁺</div>
+                                <div class="anion-name">Ammonium Ion</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">Group II</div>
+                                <div class="anion-name">Cu²⁺ (Copper)</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">Group III</div>
+                                <div class="anion-name">Al³⁺ (Aluminium)</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">Group IV</div>
+                                <div class="anion-name">Zn²⁺, Mn²⁺</div>
+                            </div>
+                            <div class="anion-card">
+                                <div class="anion-formula">Group V</div>
+                                <div class="anion-name">Ba²⁺ (Barium)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-procedures-display">
+                        <h3 style="color: #2c3e50; margin-bottom: 20px;">📋 Cation Test Procedures:</h3>
+                        
+                        <div class="procedures-section">
+                            <h4 style="color: #007bff; margin-bottom: 15px;">Group Separation Tests:</h4>
+                            <div class="procedure-list">
+                                <div class="procedure-item">
+                                    <span class="step-badge">NH₄⁺</span>
+                                    <span class="procedure-text">Add NaOH to salt and heat gently (Ammonia gas test)</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge">Gr I</span>
+                                    <span class="procedure-text">Add Dil. HCl to True Solution</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge">Gr II</span>
+                                    <span class="procedure-text">Add H₂S to acidified True Solution</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge">Gr III</span>
+                                    <span class="procedure-text">Add NH₄Cl + Excess NH₄OH to acidified TS</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge">Gr IV</span>
+                                    <span class="procedure-text">Add H₂S to Group III solution</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge">Gr V</span>
+                                    <span class="procedure-text">Add (NH₄)₂CO₃ to Group III solution</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="procedures-section">
+                            <h4 style="color: #28a745; margin-bottom: 15px;">Confirmation Tests Examples:</h4>
+                            <div class="procedure-list">
+                                <div class="procedure-item">
+                                    <span class="step-badge confirm">Cu²⁺</span>
+                                    <span class="procedure-text">NH₄OH test (Deep blue) / K₄[Fe(CN)₆] test (Chocolate brown ppt)</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge confirm">Al³⁺</span>
+                                    <span class="procedure-text">NaOH test (White gelatinous ppt) / Blue Lake test</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge confirm">Zn²⁺</span>
+                                    <span class="procedure-text">NaOH test (White ppt soluble in excess) / K₄[Fe(CN)₆] test</span>
+                                </div>
+                                <div class="procedure-item">
+                                    <span class="step-badge confirm">Ba²⁺</span>
+                                    <span class="procedure-text">K₂CrO₄ test (Yellow ppt) / H₂SO₄ test (White ppt)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="cationTests"></div>
+                    <div id="cationConfirmation" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Step 5: Results -->
+            <div class="step-container" id="step5">
+                <div class="step-header">
+                    <div class="step-title">Experiment Results</div>
+                    <div class="step-description">Complete analysis report with observations and inferences</div>
+                </div>
+
+                <table class="result-table" id="resultTable">
+                    <thead>
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Experiment</th>
+                            <th>Observations</th>
+                            <th>Inference</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultTableBody">
+                    </tbody>
+                </table>
+
+                <div class="final-result" id="finalResult">
+                    <h3>🎉 Analysis Complete!</h3>
+                    <p id="finalAnion"></p>
+                    <p id="finalCation"></p>
+                    <p id="finalFormula"></p>
+                    <p id="finalName"></p>
+                </div>
+
+                <button class="btn btn-secondary" onclick="resetSimulation()">Start New Analysis</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedSafety = new Set();
+        let selectedSample = '';
+        let sampleData = {};
+        let experimentResults = [];
+        let identifiedAnion = '';
+        let identifiedCation = '';
+        let currentTestStep = {};
+        let completedTests = new Set();
+
+        const samples = {
+            '(NH₄)₂SO₄': {
+                name: 'Ammonium Sulphate',
+                anion: 'SO₄²⁻',
+                cation: 'NH₄⁺',
+                color: 'White crystalline solid',
+                flame: 'No characteristic color',
+                anionTests: {
+                    'CO₃²⁻': false,
+                    'Cl⁻': false,
+                    'NO₃⁻': false,
+                    'SO₄²⁻': true
+                },
+                cationGroup: 'NH₄⁺',
+                anionResults: {
+                    'CO₃²⁻': 'No effervescence observed',
+                    'Cl⁻': 'No characteristic gas evolved',
+                    'NO₃⁻': 'No brown fumes observed',
+                    'SO₄²⁻': 'White precipitate of BaSO₄ formed'
+                },
+                cationResults: {
+                    nh4: 'Ammonia gas evolved with characteristic pungent smell',
+                    groupII: 'No black precipitate formed',
+                    groupIII: 'No gelatinous precipitate formed',
+                    groupIV: 'No precipitate formed',
+                    groupV: 'No white precipitate formed'
+                },
+                active: true
+            },
+            'CuCl₂': {
+                name: 'Copper Chloride',
+                anion: 'Cl⁻',
+                cation: 'Cu²⁺',
+                color: 'Blue-green crystalline solid',
+                flame: 'Green flame (due to Cu²⁺)',
+                anionTests: {
+                    'CO₃²⁻': false,
+                    'Cl⁻': true,
+                    'NO₃⁻': false,
+                    'SO₄²⁻': false
+                },
+                cationGroup: 'Group II',
+                anionResults: {
+                    'CO₃²⁻': 'No effervescence observed',
+                    'Cl⁻': 'Colorless gas with pungent smell (HCl gas) evolved',
+                    'NO₃⁻': 'No brown fumes observed',
+                    'SO₄²⁻': 'No white precipitate formed'
+                },
+                cationResults: {
+                    nh4: 'No ammonia gas evolved',
+                    groupII: 'Black precipitate of CuS formed',
+                    groupIII: 'No gelatinous precipitate formed',
+                    groupIV: 'No precipitate formed',
+                    groupV: 'No white precipitate formed'
+                },
+                active: true
+            },
+            'Al(NO₃)₃': {
+                name: 'Aluminium Nitrate',
+                anion: 'NO₃⁻',
+                cation: 'Al³⁺',
+                color: 'White crystalline solid',
+                flame: 'No characteristic color',
+                anionTests: {
+                    'CO₃²⁻': false,
+                    'Cl⁻': false,
+                    'NO₃⁻': true,
+                    'SO₄²⁻': false
+                },
+                cationGroup: 'Group III',
+                anionResults: {
+                    'CO₃²⁻': 'No effervescence observed',
+                    'Cl⁻': 'No characteristic gas evolved',
+                    'NO₃⁻': 'Brown fumes of NO₂ gas evolved on heating',
+                    'SO₄²⁻': 'No white precipitate formed'
+                },
+                cationResults: {
+                    nh4: 'No ammonia gas evolved',
+                    groupII: 'No black precipitate formed',
+                    groupIII: 'White gelatinous precipitate of Al(OH)₃ formed',
+                    groupIV: 'No precipitate formed',
+                    groupV: 'No white precipitate formed'
+                },
+                active: true
+            },
+            'ZnCO₃': {
+                name: 'Zinc Carbonate',
+                anion: 'CO₃²⁻',
+                cation: 'Zn²⁺',
+                color: 'White powder',
+                flame: 'No characteristic color',
+                anionTests: {
+                    'CO₃²⁻': true,
+                    'Cl⁻': false,
+                    'NO₃⁻': false,
+                    'SO₄²⁻': false
+                },
+                cationGroup: 'Group IV',
+                anionResults: {
+                    'CO₃²⁻': 'Brisk effervescence with colorless, odorless CO₂ gas',
+                    'Cl⁻': 'No characteristic gas evolved',
+                    'NO₃⁻': 'No brown fumes observed',
+                    'SO₄²⁻': 'No white precipitate formed'
+                },
+                cationResults: {
+                    nh4: 'No ammonia gas evolved',
+                    groupII: 'No black precipitate formed',
+                    groupIII: 'No gelatinous precipitate formed',
+                    groupIV: 'Dirty white precipitate of ZnS formed',
+                    groupV: 'No white precipitate formed'
+                },
+                active: true
+            },
+            'MnSO₄': {
+                name: 'Manganese Sulphate',
+                anion: 'SO₄²⁻',
+                cation: 'Mn²⁺',
+                color: 'Light pink crystalline solid',
+                flame: 'No characteristic color',
+                anionTests: {
+                    'CO₃²⁻': false,
+                    'Cl⁻': false,
+                    'NO₃⁻': false,
+                    'SO₄²⁻': true
+                },
+                cationGroup: 'Group IV',
+                anionResults: {
+                    'CO₃²⁻': 'No effervescence observed',
+                    'Cl⁻': 'No characteristic gas evolved',
+                    'NO₃⁻': 'No brown fumes observed',
+                    'SO₄²⁻': 'White precipitate of BaSO₄ formed'
+                },
+                cationResults: {
+                    nh4: 'No ammonia gas evolved',
+                    groupII: 'No black precipitate formed',
+                    groupIII: 'No gelatinous precipitate formed',
+                    groupIV: 'Buff colored precipitate of MnS formed',
+                    groupV: 'No white precipitate formed'
+                },
+                active: true
+            },
+            'BaCl₂': {
+                name: 'Barium Chloride',
+                anion: 'Cl⁻',
+                cation: 'Ba²⁺',
+                color: 'White crystalline solid',
+                flame: 'Apple green flame (due to Ba²⁺)',
+                anionTests: {
+                    'CO₃²⁻': false,
+                    'Cl⁻': true,
+                    'NO₃⁻': false,
+                    'SO₄²⁻': false
+                },
+                cationGroup: 'Group V',
+                anionResults: {
+                    'CO₃²⁻': 'No effervescence observed',
+                    'Cl⁻': 'Colorless gas with pungent smell (HCl gas) evolved',
+                    'NO₃⁻': 'No brown fumes observed',
+                    'SO₄²⁻': 'No white precipitate formed'
+                },
+                cationResults: {
+                    nh4: 'No ammonia gas evolved',
+                    groupII: 'No black precipitate formed',
+                    groupIII: 'No gelatinous precipitate formed',
+                    groupIV: 'No precipitate formed',
+                    groupV: 'White precipitate of BaCO₃ formed'
+                },
+                active: true
+            }
+        };
+
+        // Safety equipment selection
+        document.querySelectorAll('.safety-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const safety = this.dataset.safety;
+                if (selectedSafety.has(safety)) {
+                    selectedSafety.delete(safety);
+                    this.classList.remove('selected');
+                } else {
+                    selectedSafety.add(safety);
+                    this.classList.add('selected');
+                }
+                
+                document.getElementById('confirmSafety').disabled = selectedSafety.size !== 3;
+            });
+        });
+
+        document.getElementById('confirmSafety').addEventListener('click', function() {
+            if (selectedSafety.size === 3) {
+                nextStep();
+            }
+        });
+
+        // Sample selection
+        document.querySelectorAll('.sample-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.sample-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedSample = this.dataset.sample;
+                sampleData = samples[selectedSample];
+                document.getElementById('confirmSample').disabled = false;
+            });
+        });
+
+        document.getElementById('confirmSample').addEventListener('click', function() {
+            if (selectedSample) {
+                nextStep();
+            }
+        });
+
+        // Preliminary tests
+        document.getElementById('colorTest').addEventListener('click', function() {
+            document.getElementById('colorResult').innerHTML = `
+                <strong>Observation:</strong> ${sampleData.color}
+            `;
+            
+            // Determine inference based on color and cation
+            let colorInference = '';
+            if (sampleData.color.includes('Blue') || sampleData.color.includes('blue')) {
+                colorInference = 'Presence of Cu²⁺ (Copper) ion indicated by blue color';
+            } else if (sampleData.color.includes('pink') || sampleData.color.includes('Pink')) {
+                colorInference = 'Presence of Mn²⁺ (Manganese) ion indicated by pink color';
+            } else if (sampleData.color.includes('White') || sampleData.color.includes('white')) {
+                colorInference = 'Absence of colored cations (Cu²⁺, Mn²⁺, etc.) - likely colorless ions present';
+            } else {
+                colorInference = 'Physical appearance noted for identification';
+            }
+            
+            // Add to results
+            experimentResults.push({
+                procedure: 'Color Test - Observe the color of the salt sample',
+                observation: sampleData.color,
+                inference: colorInference
+            });
+            
+            this.disabled = true;
+            completedTests.add('color');
+            checkPreliminaryComplete();
+        });
+
+        // Initialize flame test reagent selection
+        function initializeFlameTest() {
+            currentTestStep.flame = 1;
+            setupFlameReagentSelection();
+        }
+
+        function setupFlameReagentSelection() {
+            const reagentTabs = document.querySelectorAll('#flameReagentSelection .reagent-tab');
+            reagentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    handleFlameReagentSelection(this);
+                });
+            });
+        }
+
+        function handleFlameReagentSelection(selectedTab) {
+            const reagent = selectedTab.dataset.reagent;
+            const step = parseInt(selectedTab.dataset.step);
+            const feedbackDiv = document.getElementById('flameReagentFeedback');
+            
+            // Disable all tabs in current step
+            const currentStepTabs = document.querySelectorAll(`#flameReagentSelection .reagent-tab[data-step="${step}"]`);
+            currentStepTabs.forEach(tab => tab.classList.add('disabled'));
+            
+            if (step === 1) {
+                if (reagent === 'HCl') {
+                    selectedTab.classList.add('correct');
+                    feedbackDiv.innerHTML = '<div class="reagent-feedback correct">✓ Correct! Conc. HCl is used to make paste with salt for flame test.</div>';
+                    document.getElementById('flame-step1').classList.add('completed');
+                    setTimeout(() => showFlameStep2(), 1000);
+                } else {
+                    selectedTab.classList.add('incorrect');
+                    feedbackDiv.innerHTML = '<div class="reagent-feedback incorrect">✗ Incorrect. Conc. HCl is the correct acid for flame test paste.</div>';
+                    setTimeout(() => resetFlameStep(1), 2000);
+                }
+            }
+        }
+
+        function showFlameStep2() {
+            const selectionDiv = document.getElementById('flameReagentSelection');
+            selectionDiv.innerHTML = `
+                <h4>Step 2: Select tool to dip in paste</h4>
+                <div class="reagent-tabs">
+                    <div class="reagent-tab" data-reagent="glass-rod" data-step="2">Glass Rod</div>
+                    <div class="reagent-tab" data-reagent="platinum-wire" data-step="2">Platinum Wire</div>
+                    <div class="reagent-tab" data-reagent="iron-rod" data-step="2">Iron Rod</div>
+                    <div class="reagent-tab" data-reagent="copper-wire" data-step="2">Copper Wire</div>
+                </div>
+                <div id="flameReagentFeedback"></div>
+            `;
+            
+            const reagentTabs = selectionDiv.querySelectorAll('.reagent-tab');
+            reagentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    handleFlameStep2Selection(this);
+                });
+            });
+        }
+
+        function handleFlameStep2Selection(selectedTab) {
+            const reagent = selectedTab.dataset.reagent;
+            const feedbackDiv = document.getElementById('flameReagentFeedback');
+            
+            const currentStepTabs = document.querySelectorAll('#flameReagentSelection .reagent-tab[data-step="2"]');
+            currentStepTabs.forEach(tab => tab.classList.add('disabled'));
+            
+            if (reagent === 'glass-rod' || reagent === 'platinum-wire') {
+                selectedTab.classList.add('correct');
+                feedbackDiv.innerHTML = '<div class="reagent-feedback correct">✓ Correct! Glass rod or platinum wire can be used for flame test.</div>';
+                document.getElementById('flame-step2').classList.add('completed');
+                setTimeout(() => showFlameStep3(), 1000);
+            } else {
+                selectedTab.classList.add('incorrect');
+                feedbackDiv.innerHTML = '<div class="reagent-feedback incorrect">✗ Incorrect. Use glass rod or platinum wire to avoid contamination.</div>';
+                setTimeout(() => resetFlameStep(2), 2000);
+            }
+        }
+
+        function showFlameStep3() {
+            const selectionDiv = document.getElementById('flameReagentSelection');
+            selectionDiv.innerHTML = `
+                <h4>Step 3: Select flame type</h4>
+                <div class="reagent-tabs">
+                    <div class="reagent-tab" data-reagent="non-luminous" data-step="3">Non-luminous Flame</div>
+                    <div class="reagent-tab" data-reagent="luminous" data-step="3">Luminous Flame</div>
+                    <div class="reagent-tab" data-reagent="blue-flame" data-step="3">Blue Flame</div>
+                    <div class="reagent-tab" data-reagent="yellow-flame" data-step="3">Yellow Flame</div>
+                </div>
+                <div id="flameReagentFeedback"></div>
+            `;
+            
+            const reagentTabs = selectionDiv.querySelectorAll('.reagent-tab');
+            reagentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    handleFlameStep3Selection(this);
+                });
+            });
+        }
+
+        function handleFlameStep3Selection(selectedTab) {
+            const reagent = selectedTab.dataset.reagent;
+            const feedbackDiv = document.getElementById('flameReagentFeedback');
+            
+            const currentStepTabs = document.querySelectorAll('#flameReagentSelection .reagent-tab[data-step="3"]');
+            currentStepTabs.forEach(tab => tab.classList.add('disabled'));
+            
+            if (reagent === 'non-luminous') {
+                selectedTab.classList.add('correct');
+                feedbackDiv.innerHTML = '<div class="reagent-feedback correct">✓ Correct! Non-luminous flame gives clear color observation.</div>';
+                document.getElementById('flame-step3').classList.add('completed');
+                setTimeout(() => completeFlameTest(), 1000);
+            } else {
+                selectedTab.classList.add('incorrect');
+                feedbackDiv.innerHTML = '<div class="reagent-feedback incorrect">✗ Incorrect. Non-luminous flame is used for clear color observation.</div>';
+                setTimeout(() => resetFlameStep(3), 2000);
+            }
+        }
+
+        function resetFlameStep(step) {
+            if (step === 1) {
+                setupFlameReagentSelection();
+            } else if (step === 2) {
+                showFlameStep2();
+            } else if (step === 3) {
+                showFlameStep3();
+            }
+        }
+
+        function completeFlameTest() {
+            document.getElementById('flameColors').style.display = 'grid';
+            document.getElementById('flameResult').innerHTML = `
+                <strong>Observation:</strong> ${sampleData.flame}
+            `;
+            
+            // Add to results with specific flame color inference
+            let flameInference = '';
+            if (sampleData.flame.includes('Apple green') || sampleData.flame.includes('apple green')) {
+                flameInference = 'Presence of Barium ion (Ba²⁺) indicated by apple green flame';
+            } else if (sampleData.flame.includes('Green') || sampleData.flame.includes('green')) {
+                flameInference = 'Presence of Copper ion (Cu²⁺) indicated by green flame';
+            } else if (sampleData.flame.includes('No') || sampleData.flame.includes('no')) {
+                flameInference = 'No metallic cation giving characteristic flame color';
+            } else {
+                flameInference = 'Metallic cation present giving characteristic flame color';
+            }
+            
+            experimentResults.push({
+                procedure: 'Flame Test - Make paste with conc. HCl and hold in non-luminous flame',
+                observation: sampleData.flame,
+                inference: flameInference
+            });
+            
+            completedTests.add('flame');
+            checkPreliminaryComplete();
+        }
+
+        function checkPreliminaryComplete() {
+            const colorDone = completedTests.has('color');
+            const flameDone = completedTests.has('flame');
+            document.getElementById('proceedToAnion').disabled = !(colorDone && flameDone);
+        }
+
+        document.getElementById('proceedToAnion').addEventListener('click', function() {
+            nextStep();
+            setupAnionTests();
+        });
+
+        // Tab switching
+        document.getElementById('anionTab').addEventListener('click', function() {
+            switchTab('anion');
+        });
+
+        document.getElementById('cationTab').addEventListener('click', function() {
+            switchTab('cation');
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tab === 'anion') {
+                document.getElementById('anionTab').classList.add('active');
+                document.getElementById('anionAnalysis').style.display = 'block';
+                document.getElementById('cationAnalysis').style.display = 'none';
+            } else {
+                const cationTab = document.getElementById('cationTab');
+                cationTab.classList.add('active');
+                // Remove pulse animation when tab is clicked
+                cationTab.style.animation = 'none';
+                cationTab.style.background = '#007bff';
+                
+                document.getElementById('anionAnalysis').style.display = 'none';
+                document.getElementById('cationAnalysis').style.display = 'block';
+                if (!document.getElementById('cationTests').innerHTML) {
+                    setupCationTests();
+                }
+            }
+        }
+
+        function setupAnionTests() {
+            // Initialize CO3 test first
+            initializeAnionReagentSelection('co3');
+        }
+
+        function initializeAnionReagentSelection(testType) {
+            const reagentTabs = document.querySelectorAll(`#${testType}ReagentSelection .reagent-tab`);
+            reagentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    handleAnionReagentSelection(this, testType);
+                });
+            });
+        }
+
+        function handleAnionReagentSelection(selectedTab, testType) {
+            const reagent = selectedTab.dataset.reagent;
+            const step = selectedTab.dataset.step || '1';
+            const feedbackDiv = document.getElementById(`${testType}ReagentFeedback`);
+            
+            // Disable all tabs in current step
+            const currentStepTabs = document.querySelectorAll(`#${testType}ReagentSelection .reagent-tab[data-step="${step}"]`);
+            currentStepTabs.forEach(tab => tab.classList.add('disabled'));
+            
+            let isCorrect = false;
+            let correctReagent = '';
+            let explanation = '';
+            
+            switch(testType) {
+                case 'co3':
+                    isCorrect = reagent === 'dilHCl';
+                    correctReagent = 'Dil. HCl';
+                    explanation = 'Dil. HCl reacts with carbonates to produce CO₂ gas';
+                    break;
+                case 'cl':
+                    isCorrect = reagent === 'concH2SO4';
+                    correctReagent = 'Conc. H₂SO₄';
+                    explanation = 'Conc. H₂SO₄ displaces HCl gas from chlorides';
+                    break;
+                case 'no3':
+                    if (step === '1') {
+                        isCorrect = reagent === 'concH2SO4';
+                        correctReagent = 'Conc. H₂SO₄';
+                        explanation = 'Conc. H₂SO₄ is used in brown ring test for nitrates';
+                    } else if (step === '2') {
+                        isCorrect = reagent === 'Cu';
+                        correctReagent = 'Cu turnings';
+                        explanation = 'Copper turnings help in the reduction reaction';
+                    }
+                    break;
+                case 'so4':
+                    if (step === '1') {
+                        isCorrect = reagent === 'dilHCl';
+                        correctReagent = 'Dil. HCl';
+                        explanation = 'Dil. HCl acidifies the solution for sulphate test';
+                    } else if (step === '2') {
+                        isCorrect = reagent === 'BaCl2';
+                        correctReagent = 'BaCl₂';
+                        explanation = 'BaCl₂ forms white precipitate with sulphate ions';
+                    }
+                    break;
+            }
+            
+            if (isCorrect) {
+                selectedTab.classList.add('correct');
+                feedbackDiv.innerHTML = `<div class="reagent-feedback correct">✓ Correct! ${explanation}</div>`;
+                
+                if (testType === 'no3' && step === '1') {
+                    setTimeout(() => showAnionStep2(testType), 1000);
+                } else if (testType === 'so4' && step === '1') {
+                    setTimeout(() => showAnionStep2(testType), 1000);
+                } else {
+                    setTimeout(() => completeAnionTest(testType), 1000);
+                }
+            } else {
+                selectedTab.classList.add('incorrect');
+                feedbackDiv.innerHTML = `<div class="reagent-feedback incorrect">✗ Incorrect. ${correctReagent} is the correct reagent. ${explanation}</div>`;
+                setTimeout(() => resetAnionTest(testType, step), 2000);
+            }
+        }
+
+        function showAnionStep2(testType) {
+            const selectionDiv = document.getElementById(`${testType}ReagentSelection`);
+            
+            if (testType === 'no3') {
+                document.getElementById('no3Steps').style.display = 'block';
+                selectionDiv.innerHTML = `
+                    <h4>Step 2: Select metal for NO₃⁻ test:</h4>
+                    <div class="reagent-tabs">
+                        <div class="reagent-tab" data-reagent="Cu" data-test="no3" data-step="2">Cu turnings</div>
+                        <div class="reagent-tab" data-reagent="Zn" data-test="no3" data-step="2">Zn granules</div>
+                        <div class="reagent-tab" data-reagent="Fe" data-test="no3" data-step="2">Fe filings</div>
+                        <div class="reagent-tab" data-reagent="Al" data-test="no3" data-step="2">Al foil</div>
+                    </div>
+                    <div id="no3ReagentFeedback"></div>
+                `;
+                document.getElementById('no3-step1').classList.add('completed');
+            } else if (testType === 'so4') {
+                document.getElementById('so4Steps').style.display = 'block';
+                selectionDiv.innerHTML = `
+                    <h4>Step 2: Select reagent for precipitation:</h4>
+                    <div class="reagent-tabs">
+                        <div class="reagent-tab" data-reagent="BaCl2" data-test="so4" data-step="2">BaCl₂</div>
+                        <div class="reagent-tab" data-reagent="CaCl2" data-test="so4" data-step="2">CaCl₂</div>
+                        <div class="reagent-tab" data-reagent="AgNO3" data-test="so4" data-step="2">AgNO₃</div>
+                        <div class="reagent-tab" data-reagent="Pb" data-test="so4" data-step="2">Pb(NO₃)₂</div>
+                    </div>
+                    <div id="so4ReagentFeedback"></div>
+                `;
+                document.getElementById('so4-step1').classList.add('completed');
+            }
+            
+            initializeAnionReagentSelection(testType);
+        }
+
+        function resetAnionTest(testType, step) {
+            if (step === '1') {
+                initializeAnionReagentSelection(testType);
+            } else {
+                showAnionStep2(testType);
+            }
+        }
+
+        function completeAnionTest(testType) {
+            const anionMap = {
+                'co3': 'CO₃²⁻',
+                'cl': 'Cl⁻', 
+                'no3': 'NO₃⁻',
+                'so4': 'SO₄²⁻'
+            };
+            
+            const anion = anionMap[testType];
+            const isPositive = sampleData.anionTests[anion];
+            const observation = sampleData.anionResults[anion];
+            const inference = isPositive ? `${anion} ion present` : `${anion} ion absent`;
+            
+            const resultDiv = document.getElementById(`${testType}Result`);
+            if (!isPositive) {
+                resultDiv.classList.add('test-negative');
+            }
+            
+            resultDiv.innerHTML = `<strong>Observation:</strong> ${observation}`;
+            
+            // Add to results table
+            let procedure = '';
+            switch(testType) {
+                case 'co3': procedure = 'Dil. HCl for CO₃²⁻ ion'; break;
+                case 'cl': procedure = 'Conc. H₂SO₄ for Cl⁻ ion'; break;
+                case 'no3': procedure = 'Conc. H₂SO₄ + Cu turnings + heat for NO₃⁻ ion'; break;
+                case 'so4': procedure = 'Aq. sample + Dil. HCl + BaCl₂ for SO₄²⁻ ion'; break;
+            }
+            
+            experimentResults.push({
+                procedure: procedure,
+                observation: observation,
+                inference: inference
+            });
+
+            completedTests.add(testType);
+
+            if (isPositive) {
+                identifiedAnion = anion;
+                
+                // Hide remaining tests
+                const allTests = ['co3', 'cl', 'no3', 'so4'];
+                allTests.forEach(test => {
+                    if (test !== testType && !completedTests.has(test)) {
+                        const testSection = document.getElementById(`${test}ReagentSelection`);
+                        if (testSection) {
+                            testSection.style.display = 'none';
+                        }
+                        const resultDiv = document.getElementById(`${test}Result`);
+                        if (resultDiv) {
+                            resultDiv.innerHTML = 'Test skipped (Anion identified)';
+                            resultDiv.classList.add('test-negative');
+                        }
+                    }
+                });
+                
+                // Show proceed to confirmatory test button
+                setTimeout(() => {
+                    showProceedToConfirmatory(anion);
+                }, 1000);
+            } else {
+                // Enable next test
+                const testOrder = ['co3', 'cl', 'no3', 'so4'];
+                const currentIndex = testOrder.indexOf(testType);
+                if (currentIndex < testOrder.length - 1) {
+                    const nextTest = testOrder[currentIndex + 1];
+                    const nextSelection = document.getElementById(`${nextTest}ReagentSelection`);
+                    if (nextSelection) {
+                        nextSelection.style.display = 'block';
+                        initializeAnionReagentSelection(nextTest);
+                    }
+                }
+            }
+        }
+
+        function performAnionTest(anion, resultId, button, positiveResult, negativeResult, procedure) {
+            const resultDiv = document.getElementById(resultId);
+            const isPositive = sampleData.anionTests[anion];
+            
+            // Use specific observation from sample data
+            const observation = sampleData.anionResults[anion];
+            const inference = isPositive ? `${anion} ion present` : `${anion} ion absent`;
+            
+            // Update result styling based on positive/negative
+            if (!isPositive) {
+                resultDiv.classList.add('test-negative');
+            }
+            
+            resultDiv.innerHTML = `<strong>Observation:</strong> ${observation}`;
+            
+            // Add to results table
+            experimentResults.push({
+                procedure: procedure,
+                observation: observation,
+                inference: inference
+            });
+
+            // Disable button
+            button.disabled = true;
+
+            if (isPositive) {
+                identifiedAnion = anion;
+                
+                // Disable all other anion test buttons
+                const allAnionButtons = [
+                    document.getElementById('co3Test'),
+                    document.getElementById('clTest'),
+                    document.getElementById('no3Test'),
+                    document.getElementById('so4Test')
+                ];
+                
+                allAnionButtons.forEach(btn => {
+                    if (btn !== button) {
+                        btn.disabled = true;
+                        btn.textContent = 'Test Skipped (Anion Identified)';
+                        btn.style.background = '#6c757d';
+                    }
+                });
+                
+                // Show confirmation section immediately
+                document.getElementById('anionConfirmation').style.display = 'block';
+                setTimeout(() => {
+                    setupAnionConfirmation(anion);
+                }, 500);
+            }
+
+            // Check if all tests are done
+            checkAnionTestsComplete();
+        }
+
+        function checkAnionTestsComplete() {
+            const buttons = [
+                document.getElementById('co3Test'),
+                document.getElementById('clTest'),
+                document.getElementById('no3Test'),
+                document.getElementById('so4Test')
+            ];
+            const allDone = buttons.every(btn => btn.disabled);
+            // Confirmation section is now shown immediately when positive result is found
+        }
+
+        function showProceedToConfirmatory(anion) {
+            // Create a proceed button after anion identification
+            const proceedButton = document.createElement('div');
+            proceedButton.style.textAlign = 'center';
+            proceedButton.style.marginTop = '30px';
+            proceedButton.innerHTML = `
+                <button class="btn btn-success" onclick="proceedToConfirmatory('${anion}')" style="font-size: 1.2em; padding: 15px 30px;">
+                    Proceed to Confirmatory Test for ${anion} →
+                </button>
+            `;
+            
+            // Add after the last completed test
+            const anionAnalysisDiv = document.getElementById('anionAnalysis');
+            anionAnalysisDiv.appendChild(proceedButton);
+        }
+
+        function proceedToConfirmatory(anion) {
+            // Show the confirmation section
+            document.getElementById('anionConfirmation').style.display = 'block';
+            setupAnionConfirmation(anion);
+            
+            // Scroll to confirmation section
+            document.getElementById('anionConfirmation').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function setupAnionConfirmation(anion) {
+            const confirmationDiv = document.getElementById('anionConfirmation');
+            let confirmationTest = '';
+
+            switch(anion) {
+                case 'CO₃²⁻':
+                    confirmationTest = {
+                        step: 5,
+                        title: 'CO₃²⁻ (Step 5): Lime water test (milky)',
+                        procedure: 'Pass the gas evolved through lime water',
+                        result: 'Lime water turns milky'
+                    };
+                    break;
+                case 'Cl⁻':
+                    confirmationTest = {
+                        step: 6,
+                        title: 'Cl⁻ (Step 6): AgNO₃ test (Curdy white ppt soluble in excess NH₄OH)',
+                        procedure: 'Aq solution of salt add dil nitric acid followed by silver nitrate',
+                        result: 'Curdy white precipitate soluble in excess NH₄OH'
+                    };
+                    break;
+                case 'NO₃⁻':
+                    confirmationTest = {
+                        step: 7,
+                        title: 'NO₃⁻ (Step 7): Brown Ring test (Aq. salt, Dil. H₂SO₄, FeSO₄, Conc. H₂SO₄ down sides)',
+                        procedure: 'Add FeSO₄ to aqueous salt + Dil. H₂SO₄, then add Conc. H₂SO₄ down the sides',
+                        result: 'Brown ring formed at the junction'
+                    };
+                    break;
+                case 'SO₄²⁻':
+                    confirmationTest = {
+                        step: 8,
+                        title: 'SO₄²⁻ (Step 8): Lead Acetate test (White ppt with CH₃COOH + Pb(CH₃COO)₂, soluble in excess NH₄CH₃COO)',
+                        procedure: 'Add CH₃COOH + Pb(CH₃COO)₂ to aqueous salt solution',
+                        result: 'White precipitate soluble in excess NH₄CH₃COO'
+                    };
+                    break;
+            }
+
+            confirmationDiv.innerHTML = `
+                <div class="step-header" style="margin-top: 30px;">
+                    <div class="step-title">Confirmatory Test for ${anion}</div>
+                    <div class="step-description">Confirm the presence of identified anion</div>
+                </div>
+                <div class="test-section">
+                    <div class="test-title">
+                        <div class="test-number">${confirmationTest.step}</div>
+                        ${confirmationTest.title}
+                    </div>
+                    <div class="test-procedure">
+                        <strong>Procedure:</strong> ${confirmationTest.procedure}
+                    </div>
+                    <div class="test-result" id="confirmResult">
+                        Click "Perform Confirmation" to see result
+                    </div>
+                    <button class="btn btn-success" onclick="performAnionConfirmation('${confirmationTest.result}', '${confirmationTest.procedure}')">
+                        Perform Confirmation Test
+                    </button>
+                </div>
+            `;
+        }
+
+        function performAnionConfirmation(result, procedure) {
+            document.getElementById('confirmResult').innerHTML = `<strong>Observation:</strong> ${result}`;
+            
+            experimentResults.push({
+                procedure: procedure,
+                observation: result,
+                inference: `Presence of ${identifiedAnion} ion confirmed`
+            });
+
+            event.target.disabled = true;
+            
+            // Show proceed to cation analysis button and enable cation tab
+            setTimeout(() => {
+                const proceedButton = document.createElement('button');
+                proceedButton.className = 'btn btn-success';
+                proceedButton.style.marginTop = '20px';
+                proceedButton.textContent = 'Proceed to Cation Analysis →';
+                proceedButton.onclick = function() {
+                    switchTab('cation');
+                    // Start with NH4+ test first
+                    setupInitialCationTest();
+                };
+                document.getElementById('anionConfirmation').appendChild(proceedButton);
+                
+                // Enable and highlight the cation tab
+                const cationTab = document.getElementById('cationTab');
+                cationTab.style.background = '#28a745';
+                cationTab.style.color = 'white';
+                cationTab.style.cursor = 'pointer';
+                cationTab.style.animation = 'pulse 2s infinite';
+                
+                // Add pulse animation
+                if (!document.getElementById('pulseAnimation')) {
+                    const style = document.createElement('style');
+                    style.id = 'pulseAnimation';
+                    style.textContent = `
+                        @keyframes pulse {
+                            0% { transform: scale(1); }
+                            50% { transform: scale(1.05); }
+                            100% { transform: scale(1); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }, 500);
+        }
+
+        function setupInitialCationTest() {
+            const cationTestsDiv = document.getElementById('cationTests');
+            
+            // Always start with NH₄⁺ test first
+            cationTestsDiv.innerHTML = `
+                <div class="step-header" style="margin-top: 20px;">
+                    <div class="step-title">Analysis of Cations</div>
+                    <div class="step-description">Systematic identification of cations starting with NH₄⁺ test</div>
+                </div>
+                <div class="test-section">
+                    <div class="test-title">
+                        <div class="test-number">1</div>
+                        Test for NH₄⁺ ion
+                    </div>
+                    
+                    <div class="reagent-instruction">
+                        <strong>📋 Instructions:</strong> Select the correct reagent to test for ammonium ion
+                    </div>
+
+                    <div class="reagent-selection" id="nh4ReagentSelection">
+                        <h4>Select reagent for NH₄⁺ test:</h4>
+                        <div class="reagent-tabs">
+                            <div class="reagent-tab" data-reagent="NaOH" data-test="nh4">NaOH + Heat</div>
+                            <div class="reagent-tab" data-reagent="KOH" data-test="nh4">KOH + Heat</div>
+                            <div class="reagent-tab" data-reagent="HCl" data-test="nh4">HCl + Heat</div>
+                            <div class="reagent-tab" data-reagent="H2SO4" data-test="nh4">H₂SO₄ + Heat</div>
+                        </div>
+                        <div id="nh4ReagentFeedback"></div>
+                    </div>
+                    
+                    <div class="test-result" id="nh4Result">
+                        Select correct reagent to see result
+                    </div>
+                </div>
+            `;
+            
+            // Initialize reagent selection for NH4+ test
+            initializeCationReagentSelection('nh4');
+        }
+
+        function setupCationTests() {
+            // This function is called when switching to cation tab manually
+            // Always start with NH₄⁺ test first
+            setupInitialCationTest();
+        }
+
+        function initializeCationReagentSelection(testType) {
+            const reagentTabs = document.querySelectorAll(`#${testType}ReagentSelection .reagent-tab`);
+            reagentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    handleCationReagentSelection(this, testType);
+                });
+            });
+        }
+
+        function handleCationReagentSelection(selectedTab, testType) {
+            const reagent = selectedTab.dataset.reagent;
+            const step = selectedTab.dataset.step || '1';
+            const feedbackDiv = document.getElementById(`${testType}ReagentFeedback`);
+            
+            // Disable all tabs in current step
+            const currentStepTabs = document.querySelectorAll(`#${testType}ReagentSelection .reagent-tab[data-step="${step}"]`);
+            currentStepTabs.forEach(tab => tab.classList.add('disabled'));
+            
+            let isCorrect = false;
+            let correctReagent = '';
+            let explanation = '';
+            
+            switch(testType) {
+                case 'nh4':
+                    isCorrect = reagent === 'NaOH' || reagent === 'KOH';
+                    correctReagent = 'NaOH or KOH';
+                    explanation = 'Strong alkali releases ammonia gas from ammonium salts on heating';
+                    break;
+                case 'trueSol':
+                    if (identifiedAnion === 'CO₃²⁻') {
+                        isCorrect = reagent === 'dilHCl';
+                        correctReagent = 'Dil. HCl';
+                        explanation = 'Dil. HCl dissolves carbonate salts by neutralizing CO₃²⁻';
+                    } else {
+                        isCorrect = reagent === 'water';
+                        correctReagent = 'Distilled water';
+                        explanation = 'Most salts dissolve in water to form true solution';
+                    }
+                    break;
+                case 'group1':
+                    isCorrect = reagent === 'dilHCl';
+                    correctReagent = 'Dil. HCl';
+                    explanation = 'Dil. HCl precipitates Group I cations (Ag⁺, Pb²⁺, Hg₂²⁺)';
+                    break;
+                case 'group2':
+                    isCorrect = reagent === 'H2S';
+                    correctReagent = 'H₂S gas';
+                    explanation = 'H₂S in acidic medium precipitates Group II cations';
+                    break;
+                case 'group3':
+                    isCorrect = reagent === 'NH4OH';
+                    correctReagent = 'NH₄Cl + NH₄OH';
+                    explanation = 'NH₄OH in presence of NH₄Cl precipitates Group III cations';
+                    break;
+                case 'group4':
+                    isCorrect = reagent === 'H2S';
+                    correctReagent = 'H₂S gas';
+                    explanation = 'H₂S in alkaline medium precipitates Group IV cations';
+                    break;
+                case 'group5':
+                    isCorrect = reagent === 'NH4CO3';
+                    correctReagent = '(NH₄)₂CO₃';
+                    explanation = 'Ammonium carbonate precipitates Group V cations';
+                    break;
+            }
+            
+            if (isCorrect) {
+                selectedTab.classList.add('correct');
+                feedbackDiv.innerHTML = `<div class="reagent-feedback correct">✓ Correct! ${explanation}</div>`;
+                setTimeout(() => completeCationTest(testType), 1000);
+            } else {
+                selectedTab.classList.add('incorrect');
+                feedbackDiv.innerHTML = `<div class="reagent-feedback incorrect">✗ Incorrect. ${correctReagent} is the correct reagent. ${explanation}</div>`;
+                setTimeout(() => resetCationTest(testType, step), 2000);
+            }
+        }
+
+        function resetCationTest(testType, step) {
+            initializeCationReagentSelection(testType);
+        }
+
+        function completeCationTest(testType) {
+            if (testType === 'nh4') {
+                const isPositive = sampleData.cation === 'NH₄⁺';
+                const observation = sampleData.cationResults.nh4;
+                const inference = isPositive ? 'NH₄⁺ ion present' : 'NH₄⁺ ion absent';
+                
+                const resultDiv = document.getElementById('nh4Result');
+                if (!isPositive) {
+                    resultDiv.classList.add('test-negative');
+                }
+                
+                resultDiv.innerHTML = `<strong>Observation:</strong> ${observation}`;
+                
+                experimentResults.push({
+                    procedure: 'Add NaOH to the salt and heat gently',
+                    observation: observation,
+                    inference: inference
+                });
+
+                completedTests.add('nh4');
+                
+                if (isPositive) {
+                    identifiedCation = 'NH₄⁺';
+                    setTimeout(() => {
+                        setupCationConfirmation('NH₄⁺');
+                    }, 1000);
+                } else {
+                    // If NH₄⁺ is absent, proceed to group separation tests
+                    setTimeout(() => {
+                        setupGroupSeparationTests();
+                    }, 1000);
+                }
+            } else if (testType === 'trueSol') {
+                const result = identifiedAnion === 'CO₃²⁻' ? 'Clear solution obtained after adding Dil. HCl' : 'Clear aqueous solution obtained';
+                document.getElementById('trueSolResult').innerHTML = `<strong>Observation:</strong> ${result}`;
+                
+                experimentResults.push({
+                    procedure: identifiedAnion === 'CO₃²⁻' ? 'Add Dil. HCl to dissolve carbonate salt' : 'Dissolve salt in distilled water',
+                    observation: result,
+                    inference: 'True solution prepared for group separation'
+                });
+
+                completedTests.add('trueSol');
+                setTimeout(() => {
+                    setupGroupTest('group1');
+                }, 1000);
+            } else {
+                // Handle group tests
+                const groupNumber = testType.replace('group', '');
+                const isPositive = (groupNumber === '2' && sampleData.cation === 'Cu²⁺') ||
+                                 (groupNumber === '3' && sampleData.cation === 'Al³⁺') ||
+                                 (groupNumber === '4' && (sampleData.cation === 'Zn²⁺' || sampleData.cation === 'Mn²⁺')) ||
+                                 (groupNumber === '5' && sampleData.cation === 'Ba²⁺');
+
+                const groupResults = {
+                    '1': 'No precipitate (Group I absent)',
+                    '2': sampleData.cationResults.groupII,
+                    '3': sampleData.cationResults.groupIII,
+                    '4': sampleData.cationResults.groupIV,
+                    '5': sampleData.cationResults.groupV
+                };
+
+                const result = groupResults[groupNumber];
+                const resultDiv = document.getElementById(`group${groupNumber}Result`);
+                if (!isPositive) {
+                    resultDiv.classList.add('test-negative');
+                }
+                
+                resultDiv.innerHTML = `<strong>Observation:</strong> ${result}`;
+                
+                const reagentMap = {
+                    '1': 'Add Dil. HCl',
+                    '2': 'Add H₂S to acidified TS',
+                    '3': 'Add NH₄Cl + Excess NH₄OH to acidified TS',
+                    '4': 'Add H₂S to Group III solution',
+                    '5': 'Add (NH₄)₂CO₃ to Group III solution'
+                };
+                
+                experimentResults.push({
+                    procedure: reagentMap[groupNumber],
+                    observation: result,
+                    inference: isPositive ? `Group ${groupNumber} present` : `Group ${groupNumber} absent`
+                });
+
+                completedTests.add(testType);
+
+                if (isPositive) {
+                    identifiedCation = sampleData.cation;
+                    setTimeout(() => {
+                        setupCationConfirmation(sampleData.cation);
+                    }, 1000);
+                } else {
+                    // Continue to next group test
+                    const nextGroup = parseInt(groupNumber) + 1;
+                    if (nextGroup <= 5) {
+                        setTimeout(() => {
+                            setupGroupTest(`group${nextGroup}`);
+                        }, 1000);
+                    } else {
+                        // All groups tested, identify cation anyway
+                        identifiedCation = sampleData.cation;
+                        setTimeout(() => {
+                            setupCationConfirmation(sampleData.cation);
+                        }, 1000);
+                    }
+                }
+            }
+        }
+
+        function setupGroupSeparationTests() {
+            // Start with true solution preparation
+            setupTrueSolutionTest();
+        }
+
+        function setupTrueSolutionTest() {
+            const cationTestsDiv = document.getElementById('cationTests');
+            
+            const trueSolHTML = `
+                <div class="test-section">
+                    <div class="test-title">
+                        <div class="test-number">2</div>
+                        True Solution Preparation
+                    </div>
+                    
+                    <div class="reagent-instruction">
+                        <strong>📋 Instructions:</strong> Select the correct method to prepare true solution
+                    </div>
+
+                    <div class="reagent-selection" id="trueSolReagentSelection">
+                        <h4>Select method for true solution preparation:</h4>
+                        <div class="reagent-tabs">
+                            ${identifiedAnion === 'CO₃²⁻' ? 
+                                `<div class="reagent-tab" data-reagent="dilHCl" data-test="trueSol">Add Dil. HCl</div>
+                                 <div class="reagent-tab" data-reagent="water" data-test="trueSol">Add Water</div>
+                                 <div class="reagent-tab" data-reagent="dilH2SO4" data-test="trueSol">Add Dil. H₂SO₄</div>
+                                 <div class="reagent-tab" data-reagent="NaOH" data-test="trueSol">Add NaOH</div>` :
+                                `<div class="reagent-tab" data-reagent="water" data-test="trueSol">Distilled Water</div>
+                                 <div class="reagent-tab" data-reagent="dilHCl" data-test="trueSol">Dil. HCl</div>
+                                 <div class="reagent-tab" data-reagent="alcohol" data-test="trueSol">Alcohol</div>
+                                 <div class="reagent-tab" data-reagent="ether" data-test="trueSol">Ether</div>`
+                            }
+                        </div>
+                        <div id="trueSolReagentFeedback"></div>
+                    </div>
+                    
+                    <div class="test-result" id="trueSolResult">
+                        Select correct method to prepare solution
+                    </div>
+                </div>
+            `;
+
+            cationTestsDiv.innerHTML += trueSolHTML;
+            initializeCationReagentSelection('trueSol');
+        }
+
+        function setupGroupTest(groupType) {
+            const cationTestsDiv = document.getElementById('cationTests');
+            const groupNumber = groupType.replace('group', '');
+            
+            const groupNames = {
+                '1': 'Group I (Ag⁺, Pb²⁺, Hg₂²⁺)',
+                '2': 'Group II (Cu²⁺, Pb²⁺, Hg²⁺, Bi³⁺, Cd²⁺)',
+                '3': 'Group III (Al³⁺, Fe³⁺, Cr³⁺)',
+                '4': 'Group IV (Zn²⁺, Mn²⁺, Co²⁺, Ni²⁺)',
+                '5': 'Group V (Ba²⁺, Sr²⁺, Ca²⁺)'
+            };
+
+            const reagentOptions = {
+                '1': [
+                    { reagent: 'dilHCl', label: 'Dil. HCl' },
+                    { reagent: 'concHCl', label: 'Conc. HCl' },
+                    { reagent: 'H2SO4', label: 'H₂SO₄' },
+                    { reagent: 'HNO3', label: 'HNO₃' }
+                ],
+                '2': [
+                    { reagent: 'H2S', label: 'H₂S gas (acidic)' },
+                    { reagent: 'NH4OH', label: 'NH₄OH' },
+                    { reagent: 'NaOH', label: 'NaOH' },
+                    { reagent: 'KOH', label: 'KOH' }
+                ],
+                '3': [
+                    { reagent: 'NH4OH', label: 'NH₄Cl + NH₄OH' },
+                    { reagent: 'NaOH', label: 'NaOH' },
+                    { reagent: 'KOH', label: 'KOH' },
+                    { reagent: 'Ca(OH)2', label: 'Ca(OH)₂' }
+                ],
+                '4': [
+                    { reagent: 'H2S', label: 'H₂S gas (alkaline)' },
+                    { reagent: 'NH4OH', label: 'NH₄OH' },
+                    { reagent: 'NaOH', label: 'NaOH' },
+                    { reagent: 'H2SO4', label: 'H₂SO₄' }
+                ],
+                '5': [
+                    { reagent: 'NH4CO3', label: '(NH₄)₂CO₃' },
+                    { reagent: 'Na2CO3', label: 'Na₂CO₃' },
+                    { reagent: 'K2CO3', label: 'K₂CO₃' },
+                    { reagent: 'CaCO3', label: 'CaCO₃' }
+                ]
+            };
+
+            const groupHTML = `
+                <div class="test-section">
+                    <div class="test-title">
+                        <div class="test-number">${parseInt(groupNumber) + 2}</div>
+                        ${groupNames[groupNumber]} Separation
+                    </div>
+                    
+                    <div class="reagent-instruction">
+                        <strong>📋 Instructions:</strong> Select the correct reagent for Group ${groupNumber} separation
+                    </div>
+
+                    <div class="reagent-selection" id="${groupType}ReagentSelection">
+                        <h4>Select reagent for Group ${groupNumber} test:</h4>
+                        <div class="reagent-tabs">
+                            ${reagentOptions[groupNumber].map(option => 
+                                `<div class="reagent-tab" data-reagent="${option.reagent}" data-test="${groupType}">${option.label}</div>`
+                            ).join('')}
+                        </div>
+                        <div id="${groupType}ReagentFeedback"></div>
+                    </div>
+                    
+                    <div class="test-result" id="group${groupNumber}Result">
+                        Select correct reagent to see result
+                    </div>
+                </div>
+            `;
+
+            cationTestsDiv.innerHTML += groupHTML;
+            initializeCationReagentSelection(groupType);
+        }
+
+
+
+        function setupCationConfirmation(cation) {
+            const confirmationDiv = document.getElementById('cationConfirmation');
+            confirmationDiv.style.display = 'block';
+            
+            let confirmationTests = [];
+
+            switch(cation) {
+                case 'NH₄⁺':
+                    confirmationTests = [{
+                        id: 'nessler',
+                        title: 'Nessler\'s Reagent Test',
+                        reagents: [
+                            { reagent: 'nessler', label: 'Nessler\'s Reagent' },
+                            { reagent: 'fehling', label: 'Fehling\'s Solution' },
+                            { reagent: 'benedict', label: 'Benedict\'s Solution' },
+                            { reagent: 'biuret', label: 'Biuret Reagent' }
+                        ],
+                        correct: 'nessler',
+                        explanation: 'Nessler\'s reagent gives brown precipitate with NH₄⁺ ions',
+                        result: 'Brown precipitate formed'
+                    }];
+                    break;
+                case 'Cu²⁺':
+                    confirmationTests = [
+                        {
+                            id: 'ammonia',
+                            title: 'Ammonia Test',
+                            reagents: [
+                                { reagent: 'NH4OH', label: 'NH₄OH' },
+                                { reagent: 'NaOH', label: 'NaOH' },
+                                { reagent: 'KOH', label: 'KOH' },
+                                { reagent: 'Ca(OH)2', label: 'Ca(OH)₂' }
+                            ],
+                            correct: 'NH4OH',
+                            explanation: 'NH₄OH forms deep blue complex with Cu²⁺ ions',
+                            result: 'Deep blue coloration'
+                        },
+                        {
+                            id: 'ferrocyanide',
+                            title: 'Potassium Ferrocyanide Test',
+                            reagents: [
+                                { reagent: 'K4FeCN6', label: 'Acidify blue solution with CH₃COOH + K₄[Fe(CN)₆]' },
+                                { reagent: 'K3FeCN6', label: 'K₃[Fe(CN)₆] directly' },
+                                { reagent: 'KSCN', label: 'KSCN + HCl' },
+                                { reagent: 'KI', label: 'KI + H₂SO₄' }
+                            ],
+                            correct: 'K4FeCN6',
+                            explanation: 'Blue solution from NH₄OH test is acidified with CH₃COOH, then K₄[Fe(CN)₆] forms chocolate brown precipitate with Cu²⁺',
+                            result: 'Blue solution acidified with acetic acid, then chocolate brown precipitate formed with K₄[Fe(CN)₆]'
+                        }
+                    ];
+                    break;
+                case 'Al³⁺':
+                    confirmationTests = [
+                        {
+                            id: 'naoh',
+                            title: 'NaOH Test',
+                            reagents: [
+                                { reagent: 'NaOH', label: 'NaOH' },
+                                { reagent: 'KOH', label: 'KOH' },
+                                { reagent: 'NH4OH', label: 'NH₄OH' },
+                                { reagent: 'Ca(OH)2', label: 'Ca(OH)₂' }
+                            ],
+                            correct: 'NaOH',
+                            explanation: 'NaOH forms white gelatinous precipitate with Al³⁺, soluble in excess',
+                            result: 'White gelatinous precipitate soluble in excess'
+                        },
+                        {
+                            id: 'bluelake',
+                            title: 'Blue Lake Test',
+                            reagents: [
+                                { reagent: 'CoNO3', label: 'Co(NO₃)₂ + Heat' },
+                                { reagent: 'NiSO4', label: 'NiSO₄ + Heat' },
+                                { reagent: 'CuSO4', label: 'CuSO₄ + Heat' },
+                                { reagent: 'FeCl3', label: 'FeCl₃ + Heat' }
+                            ],
+                            correct: 'CoNO3',
+                            explanation: 'Cobalt nitrate forms blue colored mass (Thenard\'s blue) with Al³⁺',
+                            result: 'Blue colored mass (Thenard\'s blue)'
+                        }
+                    ];
+                    break;
+                case 'Zn²⁺':
+                    confirmationTests = [
+                        {
+                            id: 'naoh',
+                            title: 'NaOH Test',
+                            reagents: [
+                                { reagent: 'NaOH', label: 'NaOH' },
+                                { reagent: 'KOH', label: 'KOH' },
+                                { reagent: 'NH4OH', label: 'NH₄OH' },
+                                { reagent: 'Ba(OH)2', label: 'Ba(OH)₂' }
+                            ],
+                            correct: 'NaOH',
+                            explanation: 'NaOH forms white precipitate with Zn²⁺, soluble in excess',
+                            result: 'White precipitate soluble in excess'
+                        },
+                        {
+                            id: 'ferrocyanide',
+                            title: 'Potassium Ferrocyanide Test',
+                            reagents: [
+                                { reagent: 'K4FeCN6', label: 'K₄[Fe(CN)₆]' },
+                                { reagent: 'K3FeCN6', label: 'K₃[Fe(CN)₆]' },
+                                { reagent: 'KSCN', label: 'KSCN' },
+                                { reagent: 'KMnO4', label: 'KMnO₄' }
+                            ],
+                            correct: 'K4FeCN6',
+                            explanation: 'K₄[Fe(CN)₆] forms greenish blue precipitate with Zn²⁺',
+                            result: 'Greenish blue precipitate'
+                        }
+                    ];
+                    break;
+                case 'Mn²⁺':
+                    confirmationTests = [
+                        {
+                            id: 'naoh',
+                            title: 'NaOH Test',
+                            reagents: [
+                                { reagent: 'NaOH', label: 'NaOH + Air exposure' },
+                                { reagent: 'KOH', label: 'KOH + Air exposure' },
+                                { reagent: 'NH4OH', label: 'NH₄OH + Air exposure' },
+                                { reagent: 'Ca(OH)2', label: 'Ca(OH)₂ + Air exposure' }
+                            ],
+                            correct: 'NaOH',
+                            explanation: 'NaOH forms white precipitate with Mn²⁺ that turns brown in air',
+                            result: 'White precipitate turns brown on exposure to air'
+                        },
+                        {
+                            id: 'oxidation',
+                            title: 'Oxidation Test',
+                            reagents: [
+                                { reagent: 'NaBiO3', label: 'Conc. HNO₃ + NaBiO₃' },
+                                { reagent: 'KMnO4', label: 'KMnO₄ + H₂SO₄' },
+                                { reagent: 'K2Cr2O7', label: 'K₂Cr₂O₇ + H₂SO₄' },
+                                { reagent: 'H2O2', label: 'H₂O₂ + NaOH' }
+                            ],
+                            correct: 'NaBiO3',
+                            explanation: 'NaBiO₃ oxidizes Mn²⁺ to MnO₄⁻ giving purple color',
+                            result: 'Purple color due to permanganate ion'
+                        }
+                    ];
+                    break;
+                case 'Ba²⁺':
+                    confirmationTests = [
+                        {
+                            id: 'chromate',
+                            title: 'Potassium Chromate Test',
+                            reagents: [
+                                { reagent: 'K2CrO4', label: 'K₂CrO₄' },
+                                { reagent: 'K2Cr2O7', label: 'K₂Cr₂O₇' },
+                                { reagent: 'Na2CrO4', label: 'Na₂CrO₄' },
+                                { reagent: 'CrCl3', label: 'CrCl₃' }
+                            ],
+                            correct: 'K2CrO4',
+                            explanation: 'K₂CrO₄ forms yellow precipitate of BaCrO₄ with Ba²⁺',
+                            result: 'Yellow precipitate of BaCrO₄'
+                        },
+                        {
+                            id: 'sulfate',
+                            title: 'Sulphuric Acid Test',
+                            reagents: [
+                                { reagent: 'H2SO4', label: 'Dil. H₂SO₄' },
+                                { reagent: 'HCl', label: 'Dil. HCl' },
+                                { reagent: 'HNO3', label: 'Dil. HNO₃' },
+                                { reagent: 'CH3COOH', label: 'CH₃COOH' }
+                            ],
+                            correct: 'H2SO4',
+                            explanation: 'H₂SO₄ forms white precipitate of BaSO₄ with Ba²⁺',
+                            result: 'White precipitate of BaSO₄'
+                        }
+                    ];
+                    break;
+            }
+
+            let confirmationHTML = `
+                <div class="step-header" style="margin-top: 30px;">
+                    <div class="step-title">Confirmatory Tests for ${cation}</div>
+                    <div class="step-description">Select correct reagents to confirm the presence of identified cation</div>
+                </div>
+            `;
+            
+            confirmationTests.forEach((test, index) => {
+                confirmationHTML += `
+                    <div class="test-section">
+                        <div class="test-title">
+                            <div class="test-number">C${index + 1}</div>
+                            ${test.title}
+                        </div>
+                        
+                        <div class="reagent-instruction">
+                            <strong>📋 Instructions:</strong> Select the correct reagent for ${test.title.toLowerCase()}
+                        </div>
+
+                        <div class="reagent-selection" id="${test.id}ConfirmSelection">
+                            <h4>Select reagent for ${test.title}:</h4>
+                            <div class="reagent-tabs">
+                                ${test.reagents.map(reagent => 
+                                    `<div class="reagent-tab" data-reagent="${reagent.reagent}" data-test="${test.id}" data-index="${index}">${reagent.label}</div>`
+                                ).join('')}
+                            </div>
+                            <div id="${test.id}ConfirmFeedback"></div>
+                        </div>
+                        
+                        <div class="test-result" id="cationConfirm${index}">
+                            Select correct reagent to see result
+                        </div>
+                    </div>
+                `;
+            });
+
+            confirmationHTML += `
+                <button class="btn btn-success" id="completeAnalysis" onclick="completeAnalysis()" disabled style="margin-top: 20px;">
+                    Complete Analysis & View Results →
+                </button>
+            `;
+
+            confirmationDiv.innerHTML = confirmationHTML;
+            
+            // Initialize reagent selection for each confirmation test
+            confirmationTests.forEach(test => {
+                initializeCationConfirmationSelection(test.id, test.correct, test.explanation, test.result, cation);
+            });
+        }
+
+        function initializeCationConfirmationSelection(testId, correctReagent, explanation, result, cation) {
+            const reagentTabs = document.querySelectorAll(`#${testId}ConfirmSelection .reagent-tab`);
+            reagentTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    handleCationConfirmationSelection(this, testId, correctReagent, explanation, result, cation);
+                });
+            });
+        }
+
+        function handleCationConfirmationSelection(selectedTab, testId, correctReagent, explanation, result, cation) {
+            const reagent = selectedTab.dataset.reagent;
+            const index = selectedTab.dataset.index;
+            const feedbackDiv = document.getElementById(`${testId}ConfirmFeedback`);
+            
+            // Disable all tabs in this test
+            const currentTestTabs = document.querySelectorAll(`#${testId}ConfirmSelection .reagent-tab`);
+            currentTestTabs.forEach(tab => tab.classList.add('disabled'));
+            
+            if (reagent === correctReagent) {
+                selectedTab.classList.add('correct');
+                feedbackDiv.innerHTML = `<div class="reagent-feedback correct">✓ Correct! ${explanation}</div>`;
+                
+                setTimeout(() => {
+                    document.getElementById(`cationConfirm${index}`).innerHTML = `<strong>Observation:</strong> ${result}`;
+                    
+                    // Add to experiment results
+                    const procedureMap = {
+                        'nessler': 'Add NaOH + Nessler\'s reagent to salt solution',
+                        'ammonia': 'Add NH₄OH to salt solution',
+                        'ferrocyanide': 'Acidify blue solution with CH₃COOH + Add K₄[Fe(CN)₆]',
+                        'naoh': 'Add NaOH to salt solution',
+                        'bluelake': 'Add cobalt nitrate and heat strongly',
+                        'chromate': 'Add K₂CrO₄ to salt solution',
+                        'sulfate': 'Add Dil. H₂SO₄ to salt solution',
+                        'oxidation': 'Add Conc. HNO₃ + NaBiO₃ to salt solution'
+                    };
+                    
+                    experimentResults.push({
+                        procedure: procedureMap[testId] || `Confirmation test for ${cation}`,
+                        observation: result,
+                        inference: `Presence of ${cation} ion confirmed`
+                    });
+
+                    completedTests.add(`${testId}Confirm`);
+                    checkAllConfirmationTestsComplete();
+                }, 1000);
+            } else {
+                selectedTab.classList.add('incorrect');
+                feedbackDiv.innerHTML = `<div class="reagent-feedback incorrect">✗ Incorrect. ${explanation}</div>`;
+                setTimeout(() => resetCationConfirmationTest(testId, correctReagent, explanation, result, cation), 2000);
+            }
+        }
+
+        function resetCationConfirmationTest(testId, correctReagent, explanation, result, cation) {
+            initializeCationConfirmationSelection(testId, correctReagent, explanation, result, cation);
+        }
+
+        function checkAllConfirmationTestsComplete() {
+            // Check if all confirmation tests are completed
+            const confirmationTests = document.querySelectorAll('[id$="ConfirmSelection"]');
+            const allCompleted = Array.from(confirmationTests).every(test => {
+                const tabs = test.querySelectorAll('.reagent-tab');
+                return Array.from(tabs).some(tab => tab.classList.contains('correct'));
+            });
+            
+            if (allCompleted) {
+                document.getElementById('completeAnalysis').disabled = false;
+            }
+        }
+
+
+
+        function completeAnalysis() {
+            // Generate analysis report based on actual tests performed
+            generateAnalysisReport();
+            nextStep();
+        }
+
+        function generateAnalysisReport() {
+            const tableBody = document.getElementById('resultTableBody');
+            tableBody.innerHTML = '';
+            
+            // Use the actual experimental results collected during the simulation
+            let analysisResults = [...experimentResults];
+            
+            // Add section headers to organize the results
+            let organizedResults = [];
+            let currentSection = '';
+            
+            analysisResults.forEach((result, index) => {
+                // Determine section based on procedure content
+                let section = '';
+                if (result.procedure.includes('Color Test') || result.procedure.includes('Flame Test')) {
+                    section = 'Preliminary Tests';
+                } else if (result.procedure.includes('CO₃²⁻') || result.procedure.includes('Cl⁻') || 
+                          result.procedure.includes('NO₃⁻') || result.procedure.includes('SO₄²⁻')) {
+                    if (result.procedure.includes('lime water') || result.procedure.includes('silver nitrate') || 
+                        result.procedure.includes('Brown ring') || result.procedure.includes('Lead Acetate') ||
+                        result.procedure.includes('Pb(CH₃COO)₂')) {
+                        section = `Confirmatory Test for ${identifiedAnion}`;
+                    } else {
+                        section = 'Analysis of Anions';
+                    }
+                } else if (result.procedure.includes('NaOH to the salt and heat')) {
+                    section = 'Analysis of Cations';
+                } else if (result.procedure.includes('True Solution') || result.procedure.includes('dissolve') || 
+                          result.procedure.includes('Dil. HCl to dissolve')) {
+                    section = 'True Solution Preparation';
+                } else if (result.procedure.includes('Group') || result.procedure.includes('Add Dil. HCl') ||
+                          result.procedure.includes('Add H₂S') || result.procedure.includes('Add NH₄Cl') ||
+                          result.procedure.includes('Add (NH₄)₂CO₃')) {
+                    section = 'Intergroup Separation of Cations';
+                } else if (result.procedure.includes('Nessler') || result.procedure.includes('NH₄OH to salt') ||
+                          result.procedure.includes('ferrocyanide') || result.procedure.includes('cobalt nitrate') ||
+                          result.procedure.includes('K₂CrO₄') || result.procedure.includes('NaBiO₃')) {
+                    section = `Confirmatory Tests for ${identifiedCation}`;
+                }
+                
+                // Add section header if it's new
+                if (section !== currentSection && section !== '') {
+                    organizedResults.push({
+                        section: section,
+                        procedure: '',
+                        observation: '',
+                        inference: '',
+                        isHeader: true
+                    });
+                    currentSection = section;
+                }
+                
+                organizedResults.push({
+                    section: '',
+                    procedure: result.procedure,
+                    observation: result.observation,
+                    inference: result.inference,
+                    isHeader: false
+                });
+            });
+
+            let serialNumber = 1;
+            
+            organizedResults.forEach(result => {
+                if (result.isHeader) {
+                    // Add section heading
+                    const headerRow = tableBody.insertRow();
+                    headerRow.style.backgroundColor = '#2c3e50';
+                    headerRow.style.color = 'white';
+                    headerRow.style.fontWeight = 'bold';
+                    const headerCell = headerRow.insertCell(0);
+                    headerCell.colSpan = 4;
+                    headerCell.textContent = result.section;
+                    headerCell.style.textAlign = 'center';
+                    headerCell.style.padding = '15px';
+                } else {
+                    // Add regular result row
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = serialNumber++;
+                    row.insertCell(1).textContent = result.procedure;
+                    row.insertCell(2).textContent = result.observation;
+                    row.insertCell(3).textContent = result.inference;
+                }
+            });
+
+            // Show final results based on identified ions
+            document.getElementById('finalAnion').textContent = `Anion Identified: ${identifiedAnion || sampleData.anion}`;
+            document.getElementById('finalCation').textContent = `Cation Identified: ${identifiedCation || sampleData.cation}`;
+            document.getElementById('finalFormula').textContent = `Formula: ${selectedSample}`;
+            document.getElementById('finalName').textContent = `Salt Name: ${sampleData.name}`;
+        }
+
+        function nextStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgress();
+            
+            // Initialize interactive elements for specific steps
+            if (currentStep === 3) {
+                // Initialize flame test when reaching preliminary examination
+                setTimeout(() => {
+                    initializeFlameTest();
+                }, 500);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentStep - 1) / 4 * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        function resetSimulation() {
+            currentStep = 1;
+            selectedSafety.clear();
+            selectedSample = '';
+            sampleData = {};
+            experimentResults = [];
+            identifiedAnion = '';
+            identifiedCation = '';
+            currentTestStep = {};
+            completedTests.clear();
+            
+            // Reset UI
+            document.querySelectorAll('.step-container').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            document.querySelectorAll('.safety-item').forEach(item => item.classList.remove('selected'));
+            document.querySelectorAll('.sample-card').forEach(card => card.classList.remove('selected'));
+            document.getElementById('confirmSafety').disabled = true;
+            document.getElementById('confirmSample').disabled = true;
+            
+            // Reset test buttons and results
+            document.getElementById('colorTest').disabled = false;
+            document.getElementById('proceedToAnion').disabled = true;
+            
+            updateProgress();
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'994a39a6a49bd1f0',t:'MTc2MTQ4NDU1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
